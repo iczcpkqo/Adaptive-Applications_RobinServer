@@ -1,7 +1,11 @@
 Python Flask based API Server for project 'What's my Schedule?'
 
-## Getting Started
-Installation process: `pip install -r requirements.txt`
+# Build and Test
 
-## Build and Test
-`flask run`
+## Create a docker image
+
+`docker build -t robin-server:1.0.0 .`
+
+## Run the docker image
+
+`docker run -dp 8080:8080 robin-server:1.0.0`
