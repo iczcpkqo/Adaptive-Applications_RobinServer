@@ -1,4 +1,5 @@
 from flask import Flask
+from pymongo import MongoClient
 
 def create_app():
 	# INIT Flask App
@@ -23,10 +24,11 @@ def create_app():
 	from src.database import Database
 	db = Database(connection_string = DB_CONNECTION_STRING, database = DB_NAME)
 
-	# ADD Routes
-	route_args = {'db': db}
+	db_client = MongoClient(DB_CONNECTION_STRING)
+	main_db = db_client[DB_NAME]
 
-	from src.resources import HelloWorld
-	api.add_resource(HelloWorld, '/', resource_class_kwargs=route_args)
+	# Add UserModel Controller
+	from src.controllers.UserModel import UserModelBlueprint
+	app.register_blueprint(UserModelBlueprint(main_db))
 
 	return app
