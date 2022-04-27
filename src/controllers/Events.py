@@ -28,12 +28,6 @@ def EventsBluePrint(calendar):
         try:
             result = CreateEvent_Request_Schema().load(request_data)
             eventAttendees = []
-            for result_attendee in result['Attendees']:
-                attendee = {
-                    'displayName': result_attendee['DisplayName'],
-                    'email': result_attendee['Email']
-                }
-                eventAttendees.append(attendee)
             event = {
                 'summary': result['Title'],
                 'location': result['Location'],
@@ -41,6 +35,7 @@ def EventsBluePrint(calendar):
                     'private': {
                     'period': result['Period'], 
                     'category': result['Category']
+                    #'attendees': eventAttendees
                     }
                 },
                 'start': {
@@ -50,9 +45,15 @@ def EventsBluePrint(calendar):
                 'end': {
                     "dateTime": result['End'].strftime("%Y-%m-%dT%H:%M:%S"),
                     "timeZone": "Europe/Dublin"
-                },
-                'attendees': eventAttendees
+                }
             }
+            for i, result_attendee in enumerate(result['Attendees']):
+                event['extendedProperties']['private'][f'attendee{i}'] = f"{result_attendee['DisplayName']}-{result_attendee['Email']}"
+                # attendee = {
+                #     'displayName': result_attendee['DisplayName'],
+                #     'email': result_attendee['Email']
+                # }
+                #eventAttendees.append(attendee)
             if calendar.create_event(event):
                 return jsonify({"message": "Success"}), 200
             else:
@@ -70,15 +71,23 @@ def EventsBluePrint(calendar):
         events_response = []
         for event in events:
             event_attendees = []
-            current_event_attendees = getValueFromDictKey(event, 'attendees')
-            if current_event_attendees != None:
-                for event_attendee in current_event_attendees:
+            # current_event_attendees = getValueFromDictKey(event, 'extendedProperties', 'private', 'attendees')
+            # if current_event_attendees != None:
+            #     for event_attendee in current_event_attendees:
+            #         attendee = {
+            #             "DisplayName": getValueFromDictKey(event_attendee, 'displayName'),
+            #             "Email": getValueFromDictKey(event_attendee, 'email')
+            #         }
+            #         event_attendees.append(attendee)
+            current_event_private_variables = getValueFromDictKey(event, 'extendedProperties', 'private')
+            for private_variable in current_event_private_variables:
+                if private_variable not in ['period', 'category']:
+                    attendee_variable = current_event_private_variables[private_variable].split('-')
                     attendee = {
-                        "DisplayName": getValueFromDictKey(event_attendee, 'displayName'),
-                        "Email": getValueFromDictKey(event_attendee, 'email')
+                        "DisplayName": attendee_variable[0],
+                        "Email": attendee_variable[1]
                     }
                     event_attendees.append(attendee)
-            
             event_resp = {
                 "Title": getValueFromDictKey(event, 'summary'),
                 "Location": getValueFromDictKey(event, 'location'),
