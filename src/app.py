@@ -26,9 +26,17 @@ def create_app():
 
 	db_client = MongoClient(DB_CONNECTION_STRING)
 	main_db = db_client[DB_NAME]
+ 
+	# INIT Google Calendar Service
+	from src.services.calendar.calendar import Calendar
+	calendar = Calendar()
 
 	# Add UserModel Controller
 	from src.controllers.UserModel import UserModelBlueprint
 	app.register_blueprint(UserModelBlueprint(main_db))
 
+	# Add Events Controller
+	from src.controllers.Events import EventsBluePrint
+	app.register_blueprint(EventsBluePrint(calendar))
+ 
 	return app

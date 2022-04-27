@@ -1,4 +1,4 @@
-from src.resources.calendar.auth import Auth
+from src.services.calendar.auth import Auth
 
 import datetime
 from googleapiclient.discovery import build
@@ -6,8 +6,8 @@ from googleapiclient.errors import HttpError
 
 SCOPES = ['https://www.googleapis.com/auth/calendar', 'https://www.googleapis.com/auth/calendar.events']
 
-_CREDENTIALS_TOKEN_PATH = 'src/resources/calendar/credentials/token.json'
-_CREDENTIALS_PATH = 'src/resources/calendar/credentials/credentials.json'
+_CREDENTIALS_TOKEN_PATH = 'src/services/calendar/credentials/token.json'
+_CREDENTIALS_PATH = 'src/services/calendar/credentials/credentials.json'
 
 class Calendar():
     
@@ -15,6 +15,7 @@ class Calendar():
         self.auth = Auth(_CREDENTIALS_PATH, _CREDENTIALS_TOKEN_PATH, SCOPES)
         self.__credentials = self.auth.get_auth_credentials()
         self.auth_url = self.auth.get_auth_url()
+        self.cal_service = None
         
     def check_authorization(self):
         return self.auth.check_login_stat()
@@ -24,14 +25,17 @@ class Calendar():
             self.__credentials = self.auth.get_auth_credentials()
         return self.check_authorization()
     
-    def read(self, next_n_events=10):
+    def get_cal_service(self):
+        if self.cal_service == None:
+            self.cal_service = build('calendar', 'v3', credentials=self.__credentials)
+        return self.cal_service
+    
+    def read(self):
         try:
-            service = build('calendar', 'v3', credentials=self.__credentials)
-            print(f'Getting the upcoming {next_n_events} events:')
-            events_result = service.events().list(
+            print(f'Getting events:')
+            events_result = self.get_cal_service().events().list(
                     calendarId='primary', 
-                    timeMin=datetime.datetime.utcnow().isoformat() + 'Z',
-                    maxResults=10, 
+                    timeMin='2022-01-01T00:00:00Z',
                     singleEvents=True,
                     orderBy='startTime'
                 ).execute()
@@ -42,10 +46,12 @@ class Calendar():
             
     def create_event(self, event):
         try:
-            event = service.events().insert(calendarId='primary', body=event).execute()
+            event = self.get_cal_service().events().insert(calendarId='primary', body=event).execute()
             print('Event created: %s' % (event.get('htmlLink')))
+            return True
         except HttpError as error:
             print(f'HTTP Error: {error}')
+            return False
         
                 
         
