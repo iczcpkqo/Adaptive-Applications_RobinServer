@@ -12,4 +12,4 @@ RUN pip3 install -r requirements.txt --no-cache-dir
 
 COPY . . 
 
-CMD flask run
+CMD flask run -p $PORT
