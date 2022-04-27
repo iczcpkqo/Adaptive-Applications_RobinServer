@@ -9,7 +9,9 @@ def create_app():
 	app.config.from_pyfile('settings.py')
 	DB_CONNECTION_STRING = app.config.get('DB_CONNECTION_STRING')
 	DB_NAME = app.config.get('DB_NAME')
-	FLASK_RUN_PORT = app.config.get('FLASK_RUN_PORT')
+	# FLASK_RUN_PORT = app.config.get('FLASK_RUN_PORT')
+	# print(f'FLASK_RUN_PORT: {FLASK_RUN_PORT}')
+	FLASK_RUN_PORT = app.config.get('PORT')
 	print(f'FLASK_RUN_PORT: {FLASK_RUN_PORT}')
 
 	# INIT Cors
@@ -39,4 +41,8 @@ def create_app():
 	from src.controllers.Events import EventsBluePrint
 	app.register_blueprint(EventsBluePrint(calendar))
  
+	# Add CommandHandler Controller
+	from src.controllers.CommandHandler import command_handler
+	app.register_blueprint(command_handler)
+
 	return app

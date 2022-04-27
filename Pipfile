@@ -12,6 +12,8 @@ pymongo = {extras = ["srv"], version = "*"}
 marshmallow = "*"
 google-api-python-client = "==2.45.0"
 google_auth_oauthlib = "==0.5.1"
+dialogflow-fulfillment = "*"
+mlxtend = "*"
 
 [dev-packages]
 
