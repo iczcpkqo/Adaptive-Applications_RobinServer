@@ -109,6 +109,7 @@ celerybeat.pid
 
 # Environments
 .venv
+.fenv
 env/
 venv/
 ENV/
@@ -138,3 +139,15 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+# vscode
+.vscode
+src/services/calendar/credentials/credentials.json
+src/resources/calendar/test2.py
+src/resources/calendar/test.py
+src/resources/calendar/login.py
+test.ipynb
+cal_data.json
+dummy_attendees.json
+dummy_attendees.xls
+dummy_schedule.csv
