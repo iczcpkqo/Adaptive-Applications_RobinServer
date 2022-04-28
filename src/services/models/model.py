@@ -2,9 +2,11 @@ import json
 import copy
 
 class PredictionModel():
-    def __init__(self):
-        with open('closed_patterns.json', 'r') as outfile:
-            self.closed_patterns = json.load(outfile)
+    def __init__(self, database):
+        self.database = database
+
+        record = database["frequentPatterns"].find_one()
+        self.closed_patterns = record
     
     def isConflict(self,source,dest):
         for k,v in source.items():

@@ -42,7 +42,7 @@ def create_app():
 	app.register_blueprint(EventsBluePrint(calendar))
  
 	# Add CommandHandler Controller
-	from src.controllers.CommandHandler import command_handler
-	app.register_blueprint(command_handler)
+	from src.controllers.CommandHandler import CommandBluePrint
+	app.register_blueprint(CommandBluePrint(main_db))
 
 	return app
