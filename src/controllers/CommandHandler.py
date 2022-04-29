@@ -9,12 +9,32 @@ def CommandBluePrint(database):
 
     command_handler = Blueprint('command_handler',__name__)
 
+    def checkOverlap(record, solution):
+        
+        solution["StartTime"] = solution["Start"]
+        solution["EndTime"] = datetime.datetime.strptime(solution["StartTime"], "%H:%M:%SZ") + datetime.timedelta(hours=int(float(solution["End"])))
+        solution["EndTime"] = solution["EndTime"].strftime("%H:%M:%S")
+        
+        x = [int(record['StartTime'].replace(':','')), int(record["EndTime"].replace(':',''))]
+        y = [int(solution['StartTime'].replace(':','').replace('Z','')), int(solution["EndTime"].replace(':','').replace('Z',''))]
+        
+        # print(x, flush=True)
+        # print(y, flush=True)
+
+        if x[0] == y[0]:
+            return True
+        elif x[1] == y[1]:
+            return True
+        elif (x[1]>y[0] and x[0]<y[1]):
+            return True
+        return False
+
     @command_handler.route("/command-handler", methods=["POST"])
     def CommandHandler():
         # Parse Payload
         req = request.get_json(force=True)
         action = req.get('queryResult').get('intent')
-        print(action['displayName'], flush=True)
+        
         if action['displayName'].lower() == "schedule":
             params = req.get('queryResult').get('parameters')
             print(params, flush=True)
@@ -39,15 +59,23 @@ def CommandBluePrint(database):
 
             model = PredictionModel(database)
             userSolution = {'Title': meet,'Category':'Team Meeting', 'Period': 'Semester', 'Day' : day}
-            print(userSolution, flush=True)
+            
             solutions = model.findSolutions(userSolution)
+
+            record = database["userModel"].find_one()
+
+            finalSolutions = []
             for sol in solutions:
-                print("sol -> ",sol, flush=True)
+                isOverlap = checkOverlap(record["BreakTime"], sol)
+                # print(isOverlap, flush=True)
+                if not isOverlap:
+                    sol['date'] = startdate
+                    finalSolutions.append(sol)
+            print("final sol -> ",finalSolutions, flush=True)
 
             # Create an instance of the WebhookClient
             agent = WebhookClient(req)
-            agent.add(json.dumps(solutions))
+            agent.add(json.dumps(finalSolutions))
             
         return agent.response
-    
     return command_handler

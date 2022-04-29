@@ -15,7 +15,7 @@ def UserModelBlueprint(database):
         WorkingHours = fields.Nested(TimeRange(), required=True)
         BreakTime = fields.Nested(TimeRange(), required=True)
         TimePreference = fields.String(validate=validate.OneOf(['morning', 'afternoon', 'evening']), required=True)
-        WeatherPreference = fields.String(validate=validate.OneOf(['sunny', 'none']), required=True)
+        WeatherPreference = fields.String(validate=validate.OneOf(['sunny','rainy','none','any']), required=True)
 
     @UserModel.route("/store-initial-model", methods=["POST"])
     def StoreInitialModel():
