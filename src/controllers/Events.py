@@ -9,7 +9,7 @@ def EventsBluePrint(calendar):
     
     class CreateEventAttendee_Request_Schema(Schema):
         DisplayName = fields.String(required=True)
-        Email = fields.Email(required=True)
+        Email = fields.Email(required=False)
     
     class CreateEvent_Request_Schema(Schema):
         Title = fields.String(required=True)
